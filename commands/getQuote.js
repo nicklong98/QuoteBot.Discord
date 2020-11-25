@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
 const { BASE_URL } = require("../config.json");
+const { getUserById } = require("../utils");
 
 module.exports = {
   name: "get quote",
@@ -76,6 +77,3 @@ const replaceAsync = async (str, regex, asyncFn) => {
   const data = await Promise.all(promises);
   return str.replace(regex, () => data.shift());
 };
-
-const getUserById = async (server, userId) =>
-  server.members.cache.get(userId) || (await server.members.fetch(userId));

@@ -13,6 +13,7 @@ Description: ${description || "N/A"}
   msg.reply(commandText);
 };
 const getQuote = require("./getQuote");
+const getStats = require("./stats");
 const commands = [
   {
     name: "help",
@@ -21,6 +22,7 @@ const commands = [
     exec: help,
   },
   getQuote,
+  getStats,
 ];
 
 module.exports = commands;
