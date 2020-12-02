@@ -13,6 +13,7 @@ const main = async () => {
     const {
       author: { bot: isBot },
       content,
+      attachments,
     } = msg;
     if (isBot) {
       return;
@@ -21,6 +22,13 @@ const main = async () => {
     const command = args.shift().toLowerCase();
     const targetCommand = commands.find((x) => x.command === command);
     if (targetCommand) {
+      if (attachments.length) {
+        console.log("there are attachments");
+        console.log(attachments);
+      } else {
+        console.log("no attachments");
+        console.log(attachments);
+      }
       console.info(`called command ${command}`);
       if (targetCommand.exec) {
         targetCommand.exec(msg, args);
