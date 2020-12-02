@@ -1,4 +1,5 @@
 const fetch = require("node-fetch");
+const { MessageAttachment } = require("discord.js");
 const { BASE_URL } = require("../config.json");
 const { getUserById } = require("../utils");
 
@@ -26,13 +27,19 @@ const getRandomQuote = async (msg) => {
     console.error(response);
     return;
   }
-  const { body } = await response.json();
+  const { body, attachmentUrls } = await response.json();
+  const targetAttachmentUrl =
+    attachmentUrls.length &&
+    attachmentUrls[Math.floor(Math.random() * attachmentUrls.length)];
   const quote = await replaceText(body, msg.guild);
-  await msg.channel.send(`
+  await msg.channel.send(
+    `
 \`\`\`
 ${quote}
 \`\`\`
-  `);
+  `,
+    targetAttachmentUrl && new MessageAttachment(targetAttachmentUrl)
+  );
 };
 
 const userRegex = /<@!([0-9]*)>/g;
@@ -41,12 +48,20 @@ const storeQuote = async (msg, quoteBody) => {
   const {
     author: { id: reporterId },
     guild: { id: serverId },
+    attachments,
   } = msg;
+  const attachmentUrls = attachments.map(({ url }) => url);
   const userIds = [...quoteBody.matchAll(userRegex)]
     .map((match) => match[1])
     .filter((value, index, self) => self.indexOf(value) === index);
   const promises = userIds.map((userId) => {
-    const request = { serverId, userId, reporterId, body: quoteBody };
+    const request = {
+      serverId,
+      userId,
+      reporterId,
+      body: quoteBody,
+      attachments: attachmentUrls,
+    };
     return fetch(`${BASE_URL}/quote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
