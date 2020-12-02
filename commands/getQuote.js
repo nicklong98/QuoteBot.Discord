@@ -77,6 +77,8 @@ const storeQuote = async (msg, quoteBody) => {
 };
 
 const replaceText = async (text, server) => {
+  const removeLastUserRegex = /-? *<@![0-9]*> *$/;
+  text = text.replace(removeLastUserRegex, "");
   return await replaceAsync(text, userRegex, async (__, p1) => {
     const user = await getUserById(server, p1);
     if (!user) {
