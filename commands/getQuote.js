@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const { MessageAttachment } = require("discord.js");
+const { MessageAttachment, MessageEmbed } = require("discord.js");
 const { BASE_URL } = require("../config.json");
 const { getUserById } = require("../utils");
 
@@ -27,19 +27,17 @@ const getRandomQuote = async (msg) => {
     console.error(response);
     return;
   }
-  const { body, attachmentUrls } = await response.json();
+  const { body, attachmentUrls, authorId } = await response.json();
+  const { user, displayName } = await msg.guild.members.fetch(authorId);
+  const quote = await replaceText(body, msg.guild);
   const targetAttachmentUrl =
     attachmentUrls.length &&
     attachmentUrls[Math.floor(Math.random() * attachmentUrls.length)];
-  const quote = await replaceText(body, msg.guild);
-  await msg.channel.send(
-    `
-\`\`\`
-${quote}
-\`\`\`
-  `,
-    targetAttachmentUrl && new MessageAttachment(targetAttachmentUrl)
-  );
+  const embed = new MessageEmbed()
+    .setAuthor(displayName, user.displayAvatarURL())
+    .setDescription(quote);
+  targetAttachmentUrl && embed.setImage(targetAttachmentUrl);
+  await msg.channel.send(embed);
 };
 
 const userRegex = /<@!([0-9]*)>/g;
