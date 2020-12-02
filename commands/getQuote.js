@@ -68,8 +68,14 @@ const storeQuote = async (msg, quoteBody) => {
       body: JSON.stringify(request),
     });
   });
-  await Promise.all(promises);
-  console.log("stored quote");
+  if (promises && promises.length) {
+    await Promise.all(promises);
+    console.log("stored quote");
+    await msg.react("✅");
+  } else {
+    console.log("no users found");
+    await msg.react("❓");
+  }
 };
 
 const replaceText = async (text, server) => {
