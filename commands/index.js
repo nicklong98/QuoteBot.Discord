@@ -14,15 +14,18 @@ Description: ${description || "N/A"}
 };
 const getQuote = require("./getQuote");
 const getStats = require("./stats");
+console.log([...getQuote]);
 const commands = [
-  {
-    name: "help",
-    command: "!help",
-    description: "prints out all the commands",
-    exec: help,
-  },
-  getQuote,
-  getStats,
+  ...[
+    {
+      name: "help",
+      command: "!help",
+      description: "prints out all the commands",
+      exec: help,
+    },
+    getStats,
+  ],
+  ...getQuote,
 ];
 
 module.exports = commands;

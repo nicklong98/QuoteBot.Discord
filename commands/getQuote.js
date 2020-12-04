@@ -3,23 +3,45 @@ const { MessageAttachment, MessageEmbed } = require("discord.js");
 const { BASE_URL } = require("../config.json");
 const { getUserById } = require("../utils");
 
-module.exports = {
-  name: "get quote",
-  command: "!q",
-  exec: async (msg, args) => {
-    if (args && args.length) {
-      storeQuote(msg, args.join(" "));
-      return;
-    }
-    await getRandomQuote(msg);
+module.exports = [
+  {
+    name: "get quote",
+    command: "!q",
+    exec: async (msg, args) => {
+      if (args && args.length) {
+        storeQuote(msg, args.join(" "));
+        return;
+      }
+      await getRandomQuote(msg);
+    },
   },
-};
+  {
+    name: "target quote",
+    command: "!quote",
+    description:
+      "You ever just need a David quote? Just use !quote @DavidsUsername",
+    exec: async (msg) => {
+      console.log("hi there");
+      if (msg.mentions) {
+        await Promise.all(
+          msg.mentions.users.map(async ({ id: targetUserId }) => {
+            await getRandomQuote(msg, targetUserId);
+          })
+        );
+      }
+    },
+  },
+];
 
-const getRandomQuote = async (msg) => {
+const getRandomQuote = async (msg, userId) => {
   const {
     guild: { id: serverId },
   } = msg;
-  const response = await fetch(`${BASE_URL}/quotes/${serverId}/random`);
+  const url = `${BASE_URL}/quotes/${serverId}/random${
+    (userId && `/${userId}`) || ""
+  }`;
+  console.log(`the url is ${url}`);
+  const response = await fetch(url);
   if (!response.ok) {
     msg.reply(
       "hmmmm, some bad shit happened and the quotebot server is borked. Bug nick about it"
@@ -28,16 +50,23 @@ const getRandomQuote = async (msg) => {
     return;
   }
   const { body, attachmentUrls, authorId } = await response.json();
+  await msg.channel.send(
+    await formatMessage(msg, authorId, body, attachmentUrls)
+  );
+};
+
+const formatMessage = async (msg, authorId, body, attachmentUrls) => {
   const { user, displayName } = await msg.guild.members.fetch(authorId);
   const quote = await replaceText(body, msg.guild);
   const targetAttachmentUrl =
+    attachmentUrls &&
     attachmentUrls.length &&
     attachmentUrls[Math.floor(Math.random() * attachmentUrls.length)];
   const embed = new MessageEmbed()
     .setAuthor(displayName, user.displayAvatarURL())
     .setDescription(quote);
   targetAttachmentUrl && embed.setImage(targetAttachmentUrl);
-  await msg.channel.send(embed);
+  return embed;
 };
 
 const userRegex = /<@!([0-9]*)>/g;
