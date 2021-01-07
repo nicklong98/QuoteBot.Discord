@@ -14,6 +14,7 @@ Description: ${description || "N/A"}
 };
 const getQuote = require("./getQuote");
 const getStats = require("./stats");
+const egg = require("./egg");
 console.log([...getQuote]);
 const commands = [
   ...[
@@ -24,6 +25,7 @@ const commands = [
       exec: help,
     },
     getStats,
+    egg
   ],
   ...getQuote,
 ];
