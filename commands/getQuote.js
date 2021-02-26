@@ -107,9 +107,12 @@ const storeQuote = async (msg, quoteBody) => {
 
 const replaceText = async (text, server) => {
   const userMatches = text.match(userRegex);
-  const numUsers = userMatches.filter((x, i, ar) => ar.indexOf(x) === i).length;
+  const numUsers =
+    (userMatches &&
+      userMatches.filter((x, i, ar) => ar.indexOf(x) === i).length) ||
+    1;
   console.log(`"${text}" has ${numUsers}  users`);
-  if (numUsers === 1) {
+  if (numUsers < 2) {
     const removeLastUserRegex = /-? *<@![0-9]*> *$/;
     text = text.replace(removeLastUserRegex, "");
   }
