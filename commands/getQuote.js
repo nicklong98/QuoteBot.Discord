@@ -107,7 +107,7 @@ const storeQuote = async (msg, quoteBody) => {
 
 const replaceText = async (text, server) => {
   const userMatches = text.match(userRegex);
-  const numUsers = userMatches.filter((x, i, ar) => ar.indexOf(x) === i);
+  const numUsers = userMatches.filter((x, i, ar) => ar.indexOf(x) === i).length;
   if (numUsers === 1) {
     const removeLastUserRegex = /-? *<@![0-9]*> *$/;
     text = text.replace(removeLastUserRegex, "");
