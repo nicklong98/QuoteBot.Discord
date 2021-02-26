@@ -106,12 +106,16 @@ const storeQuote = async (msg, quoteBody) => {
 };
 
 const replaceText = async (text, server) => {
-  const removeLastUserRegex = /-? *<@![0-9]*> *$/;
-  text = text.replace(removeLastUserRegex, "");
+  const userMatches = text.match(userRegex);
+  const numUsers = userMatches.filter((x, i, ar) => ar.indexOf(x) === i);
+  if (numUsers === 1) {
+    const removeLastUserRegex = /-? *<@![0-9]*> *$/;
+    text = text.replace(removeLastUserRegex, "");
+  }
   return await replaceAsync(text, userRegex, async (__, p1) => {
     const user = await getUserById(server, p1);
     if (!user) {
-      console.warn("can't find user with id " + id);
+      console.warn("can't find user with id " + p1);
       return "Someone who isn't on this server";
     }
     return user.displayName;
